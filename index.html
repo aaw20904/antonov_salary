@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bootstrap.css">
+    <title>Document</title>
+    <style>
+    body{
+        color: darkolivegreen !important;
+        background-color: #ddffdd !important;
+    }
+
+    textarea{
+        color: darkolivegreen !important;
+    }
+
+    </style>
+</head>
+<body>
+    <h2 class="h2">hello world!</h2>
+    <form action="/init" method="post" enctype="application/x-www-form-urlencoded">
+        <div class="d-flex flex-column m-2">
+                <div>
+                   <section class="d-flex flex-row  m-1 p-2">
+                        <label for="myinput1" class="p-2 m-1 form-label">Enter key</label>
+                        <input id="myinput1" class="p-2 m-1 form-control" name="key" type="number" required>
+                   </section>
+                    
+                </div>
+                    
+                <div>
+                   <section class="d-flex flex-row m-1">
+                        <label for="myinput2" class="p-2 m-1 form-label">Enter value</label>
+                        <textarea class="m-2 p-2" id="myinput2" name="value" placeholder="Enter text..." rows="5" cols="40" type="text" required maxlength="200"></textarea>
+                   </section>
+                 </div>
+                <div>
+                    <button class="btn btn-success m-1 p-2" type="submit">Push data to buffer..</button>
+                </div>
+                <div class="m-1 p-2">
+                  12bef
+                </div>
+        </div>
+    
+    </form>
+    <form action="/save" method="post" enctype="application/x-www-form-urlencoded">
+        <div class="d-flex flex-column m-2">
+                <div class="d-flex flex-column m-1">
+                        <label for="myinput1" class="p-2 m-1 form-label">Save results</label>
+                        <input id="myinput1" class="p-2 m-1 form-control" name="key" type="number" value="2" hidden>
+                </div>
+                    
+                <div>
+                    <button class="btn btn-success m-1 p-2" type="submit">Save results..</button>
+                </div>
+                
+        </div>
+    
+    </form>
+</body>
+</html>

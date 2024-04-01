@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="bootstrap.css">
+    <style>
+    body {
+        color: darkolivegreen !important;
+        background-color: #ddffdd !important;
+    }
+    
+    textarea {
+        color: darkolivegreen !important;
+    }
+   
+   .border-success{
+    border-color: #88bb88 !important;
+   }
+
+   
+    </style>
+    
+</head>
+<body>
+ <section class="wrapper p-2">
+
+    <h2 class="h3 text-center">Визначення виду </h2>
+    <h2 class="h3 text-center">нарахувань ANTONOV</h2>
+    <form action="/find" method="post" enctype="application/x-www-form-urlencoded">
+    <div class="wrapper">
+                <div class="m-2">
+                    <label class="label" class="form-label" for="myinput1">Введіть код нарахування:</label>
+                    <input id="myinput1" class="form-control" name="key" type="number" required>
+                </div>
+                
+                <div>
+                    <button type="submit" class="btn btn-success m-2">Дізнатися..</button>
+                </div>
+                
+   </div>       
+      <textarea maxlength="512" class="m-2 p-2" id="myinput2" name="value" placeholder="Enter text..."  type="text" required>12bef</textarea>
+                
+    </div> 
+    </form>
+
+   
+</section>
+                
+</body>
+</html>
