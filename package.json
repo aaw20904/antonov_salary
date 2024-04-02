@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "html-entities": "^2.5.2",
     "query-string": "^9.0.0"
   }
 }

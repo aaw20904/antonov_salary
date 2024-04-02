@@ -3,10 +3,7 @@ import * as http from 'http'
 import * as url from "url";
 let mapOfData = false;
 import querystring from 'query-string';
-
-/*
-Стабільно надається широкий вибір безпрограшних домовленостей: підприємницька діяльність, телекомунікації і кімнатні й садові рослини для
- */
+import {encode} from 'html-entities';
 
 async function onRequest (req, res) {
     let postedData="";
@@ -21,6 +18,14 @@ async function onRequest (req, res) {
                     break;
                     case "/bootstrap.css":
                       await readStylesheets(req, res, "bootstrap.css");
+                    break;
+                    case "/test":
+                        let found = mapOfData.get("1");
+                        if(!found){
+                            found ="Не знайдено!";
+                        }
+                         await readHtmlContent(req,res, "content.html");
+
                     break;
                     default:
                     sendNotFound(res);
@@ -48,7 +53,7 @@ async function onRequest (req, res) {
                         if (!found) {
                             found="не знайдено"
                         }
-                        await readHtmlContent(req,res,"find.html",found);
+                        await readHtmlContent(req,res, "find.html", found);
                     break;
                     default:
                      sendNotFound(res);
@@ -119,22 +124,25 @@ async function readHtmlContent (req, res, fileName, content=new Date().toUTCStri
          if(content){
             //find text
             let idx = info.indexOf(`12bef`);
-            if (idx) {
+            if (idx>0) {
                 //insert a new string
                  newContent = `${info.substring(0,idx)} ${content} ${info.substring(idx+5)}`;
                  
+            }else{
+                newContent = info;
             }
          }
          //set headers
-         res.setHeader("Content-Type","text/html");
+         res.setHeader("Content-Type","text/html; charset=utf-8");
          res.setHeader("Content-Length", newContent.length.toString());
          res.statusCode = 200;
+         fs.writeFileSync("content.html",newContent);
          res.end(newContent);
          return true;
     } catch (e) {
         let msg = e.toString();
         console.error('\x1b[31m%s\x1b[0m',e);
-        res.setHeader("Content-Type", "text/plain");
+        res.setHeader("Content-Type", "text/plain; charset=utf-8");
         res.statusCode=500;
         res.setHeader("Content-Length", msg.length);
         res.end(msg);
@@ -148,7 +156,7 @@ async function readStylesheets (req, res, fileName=false) {
            try {
          let info = await fs.promises.readFile(fileName,{encoding:"utf8"});
          //set headers
-         res.setHeader("Content-Type","text/css");
+         res.setHeader("Content-Type","text/css; charset=utf-8");
          res.setHeader("Content-Length", info.length.toString());
          res.statusCode = 200;
          res.end(info);
@@ -156,7 +164,7 @@ async function readStylesheets (req, res, fileName=false) {
     } catch (e) {
         let msg = e.toString();
         console.error('\x1b[31m%s\x1b[0m',e);
-        res.setHeader("Content-Type","text/plain");
+        res.setHeader("Content-Type","text/plain; charset=utf-8");
         res.statusCode=404;
         res.setHeader("Content-Length",msg.length);
         res.end(msg);
@@ -167,7 +175,7 @@ async function readStylesheets (req, res, fileName=false) {
 
 function sendNotFound(res){
     const msg="Requested resource not found!";
-    res.setHeader("Content-Type","text/plain");
+    res.setHeader("Content-Type","text/plain; charset=utf-8");
         res.statusCode=404;
         res.setHeader("Content-Length",msg.length);
         res.end(msg);
