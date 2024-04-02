@@ -1,9 +1,11 @@
 import * as http from 'http'
  import * as fs from  "fs";
 import * as url from "url";
-let mapOfData = false;
+let mainBase = false;
+let fondBase=false;
+
 import querystring from 'query-string';
-import {encode} from 'html-entities';
+
 
 async function onRequest (req, res) {
     let postedData="";
@@ -19,14 +21,6 @@ async function onRequest (req, res) {
                     case "/bootstrap.css":
                       await readStylesheets(req, res, "bootstrap.css");
                     break;
-                    case "/test":
-                        let found = mapOfData.get("1");
-                        if(!found){
-                            found ="Не знайдено!";
-                        }
-                         await readHtmlContent(req,res, "content.html");
-
-                    break;
                     default:
                     sendNotFound(res);
                     
@@ -38,18 +32,18 @@ async function onRequest (req, res) {
                  ///what is the path?
                 switch(req.url){
                     case "/init":
-                        mapOfData.set( postedData["key"], postedData["value"] );
-                        await readHtmlContent(req, res, "index.html",`Data received! Previous key:${postedData["key"]}`);
+                        mainBase.set( postedData[0][1], postedData[1][1] );
+                        await readHtmlContent(req, res, "index.html",`Data received! Previous key:${postedData[0][1]}`);
                     break;
                     case "/save":
                         //convert a Map into an array:
-                        let savedArray = Array.from(mapOfData);
+                        let savedArray = Array.from(mainBase);
                         let stringifyString = JSON.stringify(savedArray);
                         await fs.promises.writeFile("db.json",stringifyString);
                         await readHtmlContent(req,res,"saved.html");
                     break;
                     case "/find":
-                    let found = mapOfData.get(postedData["key"]);
+                    let found = mainBase.get(postedData[0][1]);
                         if (!found) {
                             found="не знайдено"
                         }
@@ -78,7 +72,7 @@ async function postListener (req, res) {
 
         req.on("end", ()=>{
              
-             encodedData = querystring.parse(body)//parseUrlEncodedString (body);
+             encodedData = parseUrlEncodedString (body);
              resolve (encodedData);
              
         });
@@ -134,17 +128,18 @@ async function readHtmlContent (req, res, fileName, content=new Date().toUTCStri
          }
          //set headers
          res.setHeader("Content-Type","text/html; charset=utf-8");
-         res.setHeader("Content-Length", newContent.length.toString());
          res.statusCode = 200;
-         fs.writeFileSync("content.html",newContent);
-         res.end(newContent);
+         let bfr = Buffer.from(newContent);
+         res.setHeader("Content-Length", bfr.length.toString());
+         res.end(bfr);
          return true;
     } catch (e) {
         let msg = e.toString();
         console.error('\x1b[31m%s\x1b[0m',e);
         res.setHeader("Content-Type", "text/plain; charset=utf-8");
         res.statusCode=500;
-        res.setHeader("Content-Length", msg.length);
+        let bfr3 = Buffer.from(msg)
+        res.setHeader("Content-Length", bfr3.length);
         res.end(msg);
 
         return false;
@@ -152,11 +147,13 @@ async function readHtmlContent (req, res, fileName, content=new Date().toUTCStri
    
 }
 
+
 async function readStylesheets (req, res, fileName=false) {
            try {
-         let info = await fs.promises.readFile(fileName,{encoding:"utf8"});
+         let info = await fs.promises.readFile(fileName);
          //set headers
          res.setHeader("Content-Type","text/css; charset=utf-8");
+        
          res.setHeader("Content-Length", info.length.toString());
          res.statusCode = 200;
          res.end(info);
@@ -166,33 +163,52 @@ async function readStylesheets (req, res, fileName=false) {
         console.error('\x1b[31m%s\x1b[0m',e);
         res.setHeader("Content-Type","text/plain; charset=utf-8");
         res.statusCode=404;
-        res.setHeader("Content-Length",msg.length);
+        
+        let bfr1=Buffer.from(msg);
+        res.setHeader("Content-Length",bfr1.length.toString());
         res.end(msg);
 
         return false;
     }
 }
 
-function sendNotFound(res){
+function sendNotFound (res) {
     const msg="Requested resource not found!";
     res.setHeader("Content-Type","text/plain; charset=utf-8");
         res.statusCode=404;
-        res.setHeader("Content-Length",msg.length);
-        res.end(msg);
+        let bfr = Buffer.from(msg.length);
+        res.setHeader("Content-Length",bfr.length);
+        res.end(bfr);
 }
 /*
 
 █▀ ▀█▀ ▄▀█ █▀█ ▀█▀   ▄▀█ █▀█ █▀█ █░░ █ █▀▀ ▄▀█ ▀█▀ █ █▀█ █▄░█
 ▄█ ░█░ █▀█ █▀▄ ░█░   █▀█ █▀▀ █▀▀ █▄▄ █ █▄▄ █▀█ ░█░ █ █▄█ █░▀█
 */
+///NOTE:  base.json:  key(integer)->["description", integer_id_of_fond], fond.json: key(integer)->"text_description_of_a_fond"
+
+/*let fonds = new Map([[1,"фонд"],[2,"собівартість"],[3,"іньші"],[4,"фонди"],[5,"Страхування від нещасного випадку"],[6,"Іньші операційні виклади"],[7,"соціальне страхування"],[8,"чорнобиьські"]]);
+                       let savedArray2 = Array.from(fonds);
+                        let stringifyStringX = JSON.stringify(savedArray2);
+                        await fs.promises.writeFile("fond.json", stringifyStringX); */
+
 //1) load database
+ try{
+  let fondsStringified = fs.readFileSync("fond.json");
+  //convertong to an array
+  let twoDimArray = JSON.parse(fondsStringified);
+  //construct Map
+  fondBase = new Map(twoDimArray);
+ }catch(e){//when file not found
+    process.exit();
+ }
 try {
     let jsonData = fs.readFileSync("db.json",{encoding:"utf8"});
     let dataarray = JSON.parse(jsonData);
-    mapOfData = new Map(dataarray);
+    mainBase = new Map(dataarray);
     console.log("database loaded successfully!");
 } catch (e) {
-    mapOfData = new Map();
+    mainBase = new Map();
     console.log("Database not found.Create from scratch ")
 }
 
