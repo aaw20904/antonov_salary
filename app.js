@@ -3,6 +3,7 @@ import * as http from 'http'
 import * as url from "url";
 let mainBase = false;
 let fondBase=false;
+///https://rxdb.info/electron-database.html
 
 import querystring from 'query-string';
 
